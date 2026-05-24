@@ -5,14 +5,17 @@ class Board(Cell?[,] grid)
   public int Width { get; } = grid.GetLength(0);
   public int Height { get; } = grid.GetLength(1);
   public Cell?[,] Grid { get; } = grid;
+  public List<Cell> Cells { get; } = [];
 
-  public void AddCell(Cell cell, int x, int y)
+  public void AddCell(Cell cell)
   {
-    Grid[x, y] = cell;
+    Grid[cell.Pos.X, cell.Pos.Y] = cell;
+    Cells.Add(cell);
   }
 
-  public bool TryAddDomino(Domino domino, int x, int y)
+  public bool TryAddDomino(Domino domino, Cell cell)
   {
+    var (x, y) = cell.Pos;
     var cells = GetCellsByDominoOrientationAndAnchor(domino.Orientation, x, y);
 
     if (cells is not (Cell anchor, Cell neighbor)) return false;
@@ -68,14 +71,37 @@ class Board(Cell?[,] grid)
     cell.Constraint = constraint;
     constraint.Cells.Add(cell);
   }
+
+  // Assumes domino is placed
+  public List<Cell> getDominoNeighbors(Domino domino)
+  {
+    if (domino.Cells is not (Cell anchor, _)) throw new Exception("Domino is not placed");
+
+    var (x, y) = anchor.Pos;
+    
+    List<(int x, int y)> offsets = domino.Orientation switch
+    {
+      DominoOrientation.Right => [(2, 0), (1, 1), (0, 1), (-1, 0), (0, -1), (1, -1)],
+      DominoOrientation.Down => [(1, 0), (1, 1), (0, 2), (-1, 1), (0, -1), (0, -1)],
+      DominoOrientation.Left => [(1, 0), (0, 1), (-1, 1), (-2, 0), (-1, -1), (0, -1)],
+      DominoOrientation.Up => [(1, 0), (0, 1), (0, -1), (-1, -1), (0, -2), (1, -1)],
+      _ => throw new Exception("Unknown DominoOrientation")
+    };
+
+    return offsets.Select(offset => Grid[x + offset.x, y + offset.y]).OfType<Cell>().ToList();
+  }
+
+  public List<Cell> FreeCells => Cells.Where(c => !c.Occupied).ToList();
 }
 
-class Cell
+class Cell(int x, int y)
 {
   public DominoPlacement? Placement { get; set; } = null;
   public Constraint? Constraint { get; set; } = null;
 
   public bool Occupied { get => Placement is not null; }
+
+  public (int X, int Y) Pos { get; } = (x, y);
 
   public int? Value
   {

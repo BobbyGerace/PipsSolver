@@ -48,7 +48,7 @@ class EqualNumConstraint(int num) : Constraint
 
   public override bool Satisfiable()
   {
-    return Values().Sum() <= num;
+    return Satisfied() || Values().Sum() <= num;
   }
 }
 
@@ -61,7 +61,7 @@ class LessThanNumConstraint(int num) : Constraint
 
   public override bool Satisfiable()
   {
-    return Values().Sum() < num;
+    return Satisfied() || Values().Sum() < num;
   }
 }
 
@@ -74,6 +74,6 @@ class GreaterThanNumConstraint(int num) : Constraint
 
   public override bool Satisfiable()
   {
-    return !Filled() || Values().Sum() > num;
+    return Satisfied() || !Filled();
   }
 }

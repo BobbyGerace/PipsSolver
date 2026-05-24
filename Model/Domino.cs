@@ -7,14 +7,14 @@ class Domino(int left, int right)
 
   public DominoOrientation Orientation { get; private set; } = DominoOrientation.Right;
   public bool Flipped { get; private set; } = false;
-  public (Cell, Cell)? Cells { get; set; } = null;
+  public (Cell Anchor, Cell Neighbor)? Cells { get; set; } = null;
 
-  void Flip()
+  public void Flip()
   {
     Flipped = !Flipped;
   }
 
-  void Rotate()
+  public void Rotate()
   {
     Orientation = Orientation switch
     {
@@ -26,7 +26,7 @@ class Domino(int left, int right)
     };
   }
 
-  void Reset()
+  public void Reset()
   {
     Flipped = false;
     Orientation = DominoOrientation.Right;

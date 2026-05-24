@@ -5,7 +5,7 @@ namespace PipsSolver.IO;
 class FileParser(string path)
 {
   
-  public Board Parse()
+  public (Board, List<Constraint>, List<Domino>) Parse()
   {
     List<string> cellLines = [];
     List<string> constraintLines = [];
@@ -20,8 +20,9 @@ class FileParser(string path)
 
     var constraints = ParseConstraints(constraintLines);
     var grid = ParseGrid(cellLines, constraints);
+    var dominos = ParseDominos(dominoLines);
 
-    throw new Exception("TODO");
+    return (grid, constraints.Values.ToList(), dominos);
   }
 
   List<string> ReadNonEmptyLines(StreamReader reader)
@@ -46,7 +47,7 @@ class FileParser(string path)
       var name = splitStr.ElementAtOrDefault(0);
       var exp = splitStr.ElementAtOrDefault(1);
 
-      var splitExp = str.Split(' ', 2, StringSplitOptions.TrimEntries);
+      var splitExp = exp!.Split(' ', 2, StringSplitOptions.TrimEntries);
       var op = splitExp.ElementAtOrDefault(0);
       var val = splitExp.ElementAtOrDefault(1);
 
@@ -76,12 +77,12 @@ class FileParser(string path)
     for (int x = 0; x < strs.Count; x++)
     {
       var str = strs[x];
-      for (int y = 0; y < str[y]; y++)
+      for (int y = 0; y < str.Length; y++)
       {
         char c = strs[x][y];
         if (c == ' ') continue;
 
-        board.AddCell(new Cell(), x, y);
+        board.AddCell(new Cell(x, y));
         Constraint? constraint = null;
         if ((constraint = constraintMap.GetValueOrDefault(c)) is not null)
         {
@@ -91,5 +92,19 @@ class FileParser(string path)
     }
 
     return board;
+  }
+
+  List<Domino> ParseDominos(List<string> strs)
+  {
+    List<Domino> dominos = []; 
+    foreach (var str in strs)
+    {
+      var nums = str.Split(' ', 2, StringSplitOptions.TrimEntries);
+      var left = int.Parse(nums.ElementAt(0));
+      var right = int.Parse(nums.ElementAt(1));
+      dominos.Add(new Domino(left, right));
+    }
+
+    return dominos;
   }
 }
