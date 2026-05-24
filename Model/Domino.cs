@@ -1,4 +1,4 @@
-namespace PipsSolver.Domino;
+namespace PipsSolver.Model;
 
 class Domino(int left, int right)
 {
