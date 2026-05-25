@@ -1,4 +1,5 @@
-﻿using PipsSolver.IO;
+﻿using System.Diagnostics;
+using PipsSolver.IO;
 
 namespace PipsSolver;
 
@@ -8,12 +9,18 @@ class Program
   {
     var (board, constraints, dominos) = new FileParser(args[0]).Parse();
 
-    Console.WriteLine(new Solver(board, dominos).Solve());
-    // Console.WriteLine($"""
-    //   Board: {board.Grid.GetLength(0)} x {board.Grid.GetLength(1)}
-    //   Constraints: {constraints.Count}
-    //   Dominos: {dominos.Count}
-    // """);
+    var watch = Stopwatch.StartNew();
+    var solved = new Solver(board, dominos).Solve();
+    watch.Stop();
+
+    if (solved) {
+      Console.WriteLine($"Solved in {watch.ElapsedMilliseconds} ms");
+      board.Print();
+    }
+    else
+    {
+      Console.WriteLine("Game is not solvable");
+    }
   }
 }
 

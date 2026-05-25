@@ -122,7 +122,6 @@ class Board(Cell?[,] grid)
       }
       Console.Write('\n');
     }
-    Console.WriteLine($"H: {Height}, W: {Width}");
   }
 }
 
