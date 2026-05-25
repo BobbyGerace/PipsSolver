@@ -8,17 +8,14 @@ class Solver(Board board, List<Domino> dominos)
 
   public bool Solve()
   {
-    HashSet<Domino> freeDominos = new (dominos);
-    return SolveAt(board.Cells[0], freeDominos);
+    return SolveAt(board.Cells[0]);
   }
 
-  bool SolveAt(Cell cell, HashSet<Domino> freeDominos)
+  bool SolveAt(Cell cell)
   {
-    foreach(var domino in freeDominos)
+    foreach(var domino in dominos)
     {
-      // TODO: This is probably expensive af. Consider using a bitmask instead
-      HashSet<Domino> nextFreeDominos = new (freeDominos);
-      nextFreeDominos.Remove(domino);
+      if (domino.Placed()) continue;
 
       for (int i = 0; i < 8; i++)
       {
@@ -46,8 +43,8 @@ class Solver(Board board, List<Domino> dominos)
 
           var neighbors = board.GetDominoNeighbors(domino);
           if (
-            neighbors.All(n => n.Occupied || SolveAt(n, nextFreeDominos)) 
-            && board.Cells.All(c => c.Occupied || SolveAt(c, nextFreeDominos))
+            neighbors.All(n => n.Occupied || SolveAt(n)) 
+            && board.Cells.All(c => c.Occupied || SolveAt(c))
           ) return true;
   
           board.RemoveDomino(domino);

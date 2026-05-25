@@ -35,6 +35,11 @@ class Domino(int left, int right)
     Orientation = DominoOrientation.Right;
   }
 
+  public bool Placed()
+  {
+    return Cells is { };
+  }
+
   public override string ToString()
   {
     return $"Domino({Left},{Right},{Orientation})";
