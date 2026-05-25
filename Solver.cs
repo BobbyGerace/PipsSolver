@@ -4,17 +4,20 @@ namespace PipsSolver;
 
 class Solver(Board board, List<Domino> dominos)
 {
-  HashSet<Domino> freeDominos = new (dominos);
 
-  bool Solve()
+  public bool Solve()
   {
-    return SolveAt(board.Cells[0]);
+    HashSet<Domino> freeDominos = new (dominos);
+    return SolveAt(board.Cells[0], freeDominos);
   }
 
-  bool SolveAt(Cell cell)
+  bool SolveAt(Cell cell, HashSet<Domino> freeDominos)
   {
     foreach(var domino in freeDominos)
     {
+      HashSet<Domino> nextFreeDominos = new (freeDominos);
+      nextFreeDominos.Remove(domino);
+
       for (int i = 0; i < 8; i++)
       {
         if (i == 4) domino.Flip();
@@ -23,26 +26,26 @@ class Solver(Board board, List<Domino> dominos)
         {
           if (
             domino.Cells is not (Cell anchor, Cell other) 
-            || (anchor.Constraint?.Satisfiable() ?? true)
-            || (other.Constraint?.Satisfiable() ?? true)
+            || !(anchor.Constraint?.Satisfiable() ?? true)
+            || !(other.Constraint?.Satisfiable() ?? true)
           )
           {
             board.RemoveDomino(domino);
             continue;
           }
 
-          freeDominos.Remove(domino);
-          var neighbors = board.getDominoNeighbors(domino);
-          foreach(var neighbor in neighbors)
-          {
-            if (SolveAt(neighbor) && board.Cells.All(c => c.Occupied || SolveAt(c))) return true;
-          }
 
+          var neighbors = board.getDominoNeighbors(domino);
+          if (
+            neighbors.All(n => n.Occupied || SolveAt(n, nextFreeDominos)) 
+            && board.Cells.All(c => c.Occupied || SolveAt(c, nextFreeDominos))
+          ) return true;
+  
           board.RemoveDomino(domino);
-          domino.Reset();
-          freeDominos.Add(domino);
         }
       }
+      
+      domino.Reset();
     }
 
     return false;
