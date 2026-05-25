@@ -2,6 +2,18 @@ using PipsSolver.Model;
 
 namespace PipsSolver.IO;
 
+/**
+* TODO: Make this nicer
+*
+* Currently this expects a fairly strict and sometimes unintuitive syntax.
+* The parser also assumes the file is right, resulting in some unhelpful
+* errors if it breaks.
+*
+* I'll fix these issues eventually, but in the meantime note that:
+* 1. Sections are separated by EMPTY newlines (no spaces)
+* 2. Because of the rule above, if a grid has a genuinedly empty row
+*    it must have at least one space to parse correctly
+*/
 class FileParser(string path)
 {
   

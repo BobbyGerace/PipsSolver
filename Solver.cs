@@ -15,6 +15,7 @@ class Solver(Board board, List<Domino> dominos)
   {
     foreach(var domino in freeDominos)
     {
+      // TODO: This is probably expensive af. Consider using a bitmask instead
       HashSet<Domino> nextFreeDominos = new (freeDominos);
       nextFreeDominos.Remove(domino);
 
