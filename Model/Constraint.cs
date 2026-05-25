@@ -2,13 +2,13 @@ namespace PipsSolver.Model;
 
 abstract class Constraint
 {
-  public List<Cell> Cells { get; set; } = [];
+  public List<Cell> Cells { get; } = [];
 
   protected List<int> Values() => Cells.Select(cell => cell.Value).OfType<int>().ToList();
   protected bool Filled() => Cells.All(cell => cell.Value is not null);
 
-  abstract public bool Satisfied();
-  abstract public bool Satisfiable();
+  public abstract bool Satisfied();
+  public abstract bool Satisfiable();
 }
 
 class AllEqualConstraint : Constraint

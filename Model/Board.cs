@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace PipsSolver.Model;
 
 class Board(Cell?[,] grid)
@@ -37,7 +39,7 @@ class Board(Cell?[,] grid)
       DominoOrientation.Down => (0, 1),
       DominoOrientation.Left => (-1, 0),
       DominoOrientation.Up => (0, -1),
-      _ => throw new Exception("Unknown DominoOrientation")
+      _ => throw new UnreachableException("Unknown DominoOrientation")
     };
 
     var neighborX = x + xOffset;
@@ -57,7 +59,7 @@ class Board(Cell?[,] grid)
 
   public void RemoveDomino(Domino domino)
   {
-    if (domino.Cells is not (Cell anchor, Cell neighbor)) throw new Exception("Domino is already removed");
+    if (domino.Cells is not (Cell anchor, Cell neighbor)) throw new InvalidOperationException("Domino is already removed");
 
     anchor.Placement = null;
     neighbor.Placement = null;
@@ -69,26 +71,26 @@ class Board(Cell?[,] grid)
   {
     var maybeCell = Grid[y, x];
 
-    if (maybeCell is not Cell cell) throw new Exception($"Cell does not exist at {x},{y}");
+    if (maybeCell is not Cell cell) throw new InvalidOperationException($"Cell does not exist at {x},{y}");
 
     cell.Constraint = constraint;
     constraint.Cells.Add(cell);
   }
 
   // Assumes domino is placed
-  public List<Cell> getDominoNeighbors(Domino domino)
+  public List<Cell> GetDominoNeighbors(Domino domino)
   {
-    if (domino.Cells is not (Cell anchor, _)) throw new Exception("Domino is not placed");
+    if (domino.Cells is not (Cell anchor, _)) throw new InvalidOperationException("Domino is not placed");
 
     var (x, y) = anchor.Pos;
     
     List<(int x, int y)> offsets = domino.Orientation switch
     {
       DominoOrientation.Right => [(2, 0), (1, 1), (0, 1), (-1, 0), (0, -1), (1, -1)],
-      DominoOrientation.Down => [(1, 0), (1, 1), (0, 2), (-1, 1), (0, -1), (0, -1)],
+      DominoOrientation.Down => [(1, 0), (1, 1), (0, 2), (-1, 1), (-1, 0), (0, -1)],
       DominoOrientation.Left => [(1, 0), (0, 1), (-1, 1), (-2, 0), (-1, -1), (0, -1)],
       DominoOrientation.Up => [(1, 0), (0, 1), (0, -1), (-1, -1), (0, -2), (1, -1)],
-      _ => throw new Exception("Unknown DominoOrientation")
+      _ => throw new UnreachableException("Unknown DominoOrientation")
     };
 
     return offsets
@@ -116,7 +118,7 @@ class Board(Cell?[,] grid)
 
         WriteCell(cell);
       }
-      Console.Write('\n');
+      Console.WriteLine();
     }
   }
 

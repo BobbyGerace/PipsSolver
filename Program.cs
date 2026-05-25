@@ -13,7 +13,8 @@ class Program
     var solved = new Solver(board, dominos).Solve();
     watch.Stop();
 
-    if (solved) {
+    if (solved)
+    {
       Console.WriteLine($"Solved in {watch.ElapsedMilliseconds} ms");
       board.Print();
     }

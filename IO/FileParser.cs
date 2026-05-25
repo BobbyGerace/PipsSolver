@@ -19,16 +19,11 @@ class FileParser(string path)
   
   public (Board, List<Constraint>, List<Domino>) Parse()
   {
-    List<string> cellLines = [];
-    List<string> constraintLines = [];
-    List<string> dominoLines = [];
+    using StreamReader reader = new StreamReader(path);
 
-    using (StreamReader reader = new StreamReader(path))
-    {
-      cellLines = ReadNonEmptyLines(reader);
-      constraintLines = ReadNonEmptyLines(reader);
-      dominoLines = ReadNonEmptyLines(reader);
-    }
+    List<string> cellLines = ReadNonEmptyLines(reader);
+    List<string> constraintLines = ReadNonEmptyLines(reader);
+    List<string> dominoLines = ReadNonEmptyLines(reader);
 
     var constraints = ParseConstraints(constraintLines);
     var grid = ParseGrid(cellLines, constraints);
@@ -40,8 +35,7 @@ class FileParser(string path)
   List<string> ReadNonEmptyLines(StreamReader reader)
   {
     List<string> output = [];
-    string? line = null;
-    while ((line = reader.ReadLine()) is string && line.Length > 0)
+    while (reader.ReadLine() is { Length: > 0 } line)
     {
       output.Add(line);
     }

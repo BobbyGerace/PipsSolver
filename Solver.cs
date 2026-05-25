@@ -4,6 +4,7 @@ namespace PipsSolver;
 
 class Solver(Board board, List<Domino> dominos)
 {
+  static readonly bool Debug = Environment.GetEnvironmentVariable("DEBUG") == "true";
 
   public bool Solve()
   {
@@ -26,7 +27,7 @@ class Solver(Board board, List<Domino> dominos)
         
         if (board.TryAddDomino(domino, cell))
         {
-          if (Environment.GetEnvironmentVariable("DEBUG") == "true")
+          if (Debug)
           {
             board.Print();
             Console.WriteLine("---");
@@ -43,7 +44,7 @@ class Solver(Board board, List<Domino> dominos)
           }
 
 
-          var neighbors = board.getDominoNeighbors(domino);
+          var neighbors = board.GetDominoNeighbors(domino);
           if (
             neighbors.All(n => n.Occupied || SolveAt(n, nextFreeDominos)) 
             && board.Cells.All(c => c.Occupied || SolveAt(c, nextFreeDominos))
