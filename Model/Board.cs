@@ -114,14 +114,30 @@ class Board(Cell?[,] grid)
           continue;
         }
 
-        if (!(cell.Constraint?.Satisfiable() ?? true)) Console.ForegroundColor = ConsoleColor.Red;
-
-        Console.Write(cell.Value is null ? "*" : cell.Value);
-
-        Console.ResetColor();
+        WriteCell(cell);
       }
       Console.Write('\n');
     }
+  }
+
+  void WriteCell(Cell cell)
+  {
+    if (!(cell.Constraint?.Satisfiable() ?? true)) Console.ForegroundColor = ConsoleColor.Red;
+
+    string text = cell.Value?.ToString() ?? "*";
+
+    var isHorizontal = cell.Placement?.Domino.Orientation == DominoOrientation.Left
+      || cell.Placement?.Domino.Orientation == DominoOrientation.Right;
+
+    if (isHorizontal) WriteUnderline(text);
+    else Console.Write(text);
+
+    Console.ResetColor();
+  }
+
+  static void WriteUnderline(string s)
+  {
+    Console.Write("\x1B[4m" + s + "\x1B[0m");
   }
 }
 
