@@ -17,7 +17,9 @@ class Solver(Board board, List<Domino> dominos)
     {
       if (domino.Placed()) continue;
 
-      for (int i = 0; i < 8; i++)
+      // Skip the flip for dominos with equal sides
+      var iterations = domino.Left == domino.Right ? 4 : 8;
+      for (int i = 0; i < iterations; i++)
       {
         if (i != 0) domino.Rotate();
         if (i == 4) domino.Flip();
@@ -39,7 +41,6 @@ class Solver(Board board, List<Domino> dominos)
             board.RemoveDomino(domino);
             continue;
           }
-
 
           var neighbors = board.GetDominoNeighbors(domino);
           if (
