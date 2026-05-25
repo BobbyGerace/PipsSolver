@@ -2,8 +2,8 @@ namespace PipsSolver.Model;
 
 class Domino(int left, int right)
 {
-  public int Left { get; } = left;
-  public int Right { get; } = right;
+  public int Left { get; private set; } = left;
+  public int Right { get; private set; } = right;
 
   public DominoOrientation Orientation { get; private set; } = DominoOrientation.Right;
   public bool Flipped { get; private set; } = false;
@@ -12,6 +12,7 @@ class Domino(int left, int right)
   public void Flip()
   {
     Flipped = !Flipped;
+    (Left, Right) = (Right, Left);
   }
 
   public void Rotate()
@@ -29,7 +30,14 @@ class Domino(int left, int right)
   public void Reset()
   {
     Flipped = false;
+    Left = left;
+    Right = right;
     Orientation = DominoOrientation.Right;
+  }
+
+  public override string ToString()
+  {
+    return $"Domino({Left},{Right},{Orientation})";
   }
 };
 

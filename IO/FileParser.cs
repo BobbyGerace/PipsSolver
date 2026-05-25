@@ -69,17 +69,17 @@ class FileParser(string path)
 
   Board ParseGrid(List<string> strs, Dictionary<char, Constraint> constraintMap)
   {
-    int Width = strs.Count;
-    int Height = strs.Select(s => s.Length).Max();
+    int Height = strs.Count;
+    int Width = strs.Select(s => s.Length).Max();
     
-    var board = new Board(new Cell?[Width, Height]);
+    var board = new Board(new Cell?[Height, Width]);
 
-    for (int x = 0; x < strs.Count; x++)
+    for (int y = 0; y < strs.Count; y++)
     {
-      var str = strs[x];
-      for (int y = 0; y < str.Length; y++)
+      var str = strs[y];
+      for (int x = 0; x < str.Length; x++)
       {
-        char c = strs[x][y];
+        char c = strs[y][x];
         if (c == ' ') continue;
 
         board.AddCell(new Cell(x, y));

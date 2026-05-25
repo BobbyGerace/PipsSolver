@@ -2,14 +2,14 @@ namespace PipsSolver.Model;
 
 class Board(Cell?[,] grid)
 {
-  public int Width { get; } = grid.GetLength(0);
-  public int Height { get; } = grid.GetLength(1);
+  public int Height { get; } = grid.GetLength(0);
+  public int Width { get; } = grid.GetLength(1);
   public Cell?[,] Grid { get; } = grid;
   public List<Cell> Cells { get; } = [];
 
   public void AddCell(Cell cell)
   {
-    Grid[cell.Pos.X, cell.Pos.Y] = cell;
+    Grid[cell.Pos.Y, cell.Pos.X] = cell;
     Cells.Add(cell);
   }
 
@@ -20,7 +20,7 @@ class Board(Cell?[,] grid)
 
     if (cells is not (Cell anchor, Cell neighbor)) return false;
 
-    if (anchor.Occupied && neighbor.Occupied) return false;
+    if (anchor.Occupied || neighbor.Occupied) return false;
 
     anchor.Placement = new DominoPlacement(domino, DominoSide.Left);
     neighbor.Placement = new DominoPlacement(domino, DominoSide.Right);
@@ -40,11 +40,14 @@ class Board(Cell?[,] grid)
       _ => throw new Exception("Unknown DominoOrientation")
     };
 
-    if (xOffset < 0 || xOffset >= Width) return null;
-    if (yOffset < 0 || yOffset >= Height) return null;
+    var neighborX = x + xOffset;
+    var neighborY = y + yOffset;
 
-    var anchorCell = Grid[x, y];
-    var neighbor = Grid[x + xOffset, y + yOffset];
+    if (neighborX < 0 || neighborX >= Width) return null;
+    if (neighborY < 0 || neighborY >= Height) return null;
+
+    var anchorCell = Grid[y, x];
+    var neighbor = Grid[y + yOffset, x + xOffset];
 
     if (anchorCell is Cell && neighbor is Cell) {
       return (anchorCell, neighbor);
@@ -64,7 +67,7 @@ class Board(Cell?[,] grid)
   // This method assumes the cells have already been placed and this coordinate has one
   public void AddConstraintToCell(Constraint constraint, int x, int y)
   {
-    var maybeCell = Grid[x, y];
+    var maybeCell = Grid[y, x];
 
     if (maybeCell is not Cell cell) throw new Exception($"Cell does not exist at {x},{y}");
 
@@ -88,10 +91,39 @@ class Board(Cell?[,] grid)
       _ => throw new Exception("Unknown DominoOrientation")
     };
 
-    return offsets.Select(offset => Grid[x + offset.x, y + offset.y]).OfType<Cell>().ToList();
+    return offsets
+      .Select(offset => (x: x + offset.x, y: y + offset.y))
+      .Where(pos => pos.x >= 0 && pos.x < Width && pos.y >= 0 && pos.y < Height)
+      .Select(pos => Grid[pos.y, pos.x])
+      .OfType<Cell>()
+      .ToList();
   }
 
   public List<Cell> FreeCells => Cells.Where(c => !c.Occupied).ToList();
+  
+  public void Print()
+  {
+    for (int y = 0; y < Height; y++)
+    {
+      for (int x = 0; x < Width; x++)
+      {
+        var cell = Grid[y, x];
+        if (cell is null) 
+        {
+          Console.Write(' ');
+          continue;
+        }
+
+        if (!(cell.Constraint?.Satisfiable() ?? true)) Console.ForegroundColor = ConsoleColor.Red;
+
+        Console.Write(cell.Value is null ? "*" : cell.Value);
+
+        Console.ResetColor();
+      }
+      Console.Write('\n');
+    }
+    Console.WriteLine($"H: {Height}, W: {Width}");
+  }
 }
 
 class Cell(int x, int y)
@@ -110,6 +142,11 @@ class Cell(int x, int y)
 
       return Placement.Side == DominoSide.Left ? Placement.Domino.Left : Placement.Domino.Right;
     }
+  }
+
+  public override string ToString()
+  {
+    return $"Cell({x},{y})";
   }
 }
 
