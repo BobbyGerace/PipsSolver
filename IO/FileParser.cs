@@ -2,18 +2,6 @@ using PipsSolver.Model;
 
 namespace PipsSolver.IO;
 
-/**
-* TODO: Make this nicer
-*
-* Currently this expects a fairly strict and sometimes unintuitive syntax.
-* The parser also assumes the file is right, resulting in some unhelpful
-* errors if it breaks.
-*
-* I'll fix these issues eventually, but in the meantime note that:
-* 1. Sections are separated by EMPTY newlines (no spaces)
-* 2. Because of the rule above, if a grid has a genuinedly empty row
-*    it must have at least one space to parse correctly
-*/
 class FileParser(string path)
 {
   
@@ -21,9 +9,9 @@ class FileParser(string path)
   {
     using StreamReader reader = new StreamReader(path);
 
-    List<string> cellLines = ReadNonEmptyLines(reader);
-    List<string> constraintLines = ReadNonEmptyLines(reader);
-    List<string> dominoLines = ReadNonEmptyLines(reader);
+    List<string> cellLines = ReadSection(reader);
+    List<string> constraintLines = ReadSection(reader);
+    List<string> dominoLines = ReadSection(reader);
 
     var constraints = ParseConstraints(constraintLines);
     var grid = ParseGrid(cellLines, constraints);
@@ -32,10 +20,10 @@ class FileParser(string path)
     return (grid, constraints.Values.ToList(), dominos);
   }
 
-  List<string> ReadNonEmptyLines(StreamReader reader)
+  List<string> ReadSection(StreamReader reader)
   {
     List<string> output = [];
-    while (reader.ReadLine() is { Length: > 0 } line)
+    while (reader.ReadLine() is { } line && !line.StartsWith("---"))
     {
       output.Add(line);
     }
@@ -49,6 +37,8 @@ class FileParser(string path)
 
     foreach (var str in strs)
     {
+      if (str.Trim().Length == 0) continue; 
+
       var splitStr = str.Split(':', 2, StringSplitOptions.TrimEntries);
       var name = splitStr.ElementAtOrDefault(0);
       var exp = splitStr.ElementAtOrDefault(1);
@@ -105,6 +95,8 @@ class FileParser(string path)
     List<Domino> dominos = []; 
     foreach (var str in strs)
     {
+      if (str.Trim().Length == 0) continue; 
+
       var nums = str.Split(' ', 2, StringSplitOptions.TrimEntries);
       var left = int.Parse(nums.ElementAt(0));
       var right = int.Parse(nums.ElementAt(1));

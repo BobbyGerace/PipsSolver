@@ -2,12 +2,14 @@ AAB  *
 C  D F
 C  D F
 EEE  G
-     
+
    HHI
 JJ K
 L  MN
 L  O
 LP QQR
+
+---
 
 A: = 11
 B: = 3
@@ -27,6 +29,8 @@ O: = 3
 P: = 1
 Q: < 5
 R: = 6
+
+---
 
 0 5
 6 3

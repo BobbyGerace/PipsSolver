@@ -29,9 +29,8 @@ class Domino(int left, int right)
 
   public void Reset()
   {
-    Flipped = false;
-    Left = left;
-    Right = right;
+    if (Flipped) Flip();
+
     Orientation = DominoOrientation.Right;
   }
 

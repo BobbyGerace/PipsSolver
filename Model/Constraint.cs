@@ -23,7 +23,8 @@ class NoneEqualConstraint : Constraint
 {
   public override bool Satisfiable()
   {
-    return Values().Distinct().Count() == Values().Count;
+    var values = Values();
+    return values.Distinct().Count() == values.Count;
   }
 }
 
