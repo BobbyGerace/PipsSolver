@@ -42,11 +42,8 @@ class Solver(Board board, List<Domino> dominos)
             continue;
           }
 
-          var neighbors = board.GetDominoNeighbors(domino);
-          if (
-            neighbors.All(n => n.Occupied || SolveAt(n)) 
-            && board.Cells.All(c => c.Occupied || SolveAt(c))
-          ) return true;
+          var next = GetBestNextCell(domino);
+          if (next is null || SolveAt(next)) return true;
   
           board.RemoveDomino(domino);
         }
@@ -56,5 +53,33 @@ class Solver(Board board, List<Domino> dominos)
     }
 
     return false;
+  }
+
+  Cell? GetBestNextCell(Domino domino)
+  {
+    var neighbors = board.GetDominoNeighbors(domino);
+
+    if (domino.Cells is not (Cell anchor, Cell other))
+    {
+      throw new InvalidOperationException("Domino is not placed");
+    }
+
+    var leftCon  = anchor.Constraint;
+    var rightCon = other.Constraint;
+
+    Cell? anyNeighbor = null, hasConstraint = null;
+    foreach (var neighbor in neighbors)
+    {
+      if (neighbor.Occupied) continue;
+
+      if (neighbor.Constraint is { } nc && (nc == leftCon || nc == rightCon)) return neighbor;
+      else if (neighbor.Constraint is { }) hasConstraint = neighbor;
+      else anyNeighbor = neighbor;
+    }
+
+    if (hasConstraint is { }) return hasConstraint;
+    if (anyNeighbor is { }) return anyNeighbor;
+
+    return board.Cells.Find(c => !c.Occupied);
   }
 }
