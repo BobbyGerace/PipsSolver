@@ -89,7 +89,7 @@ class Board(Cell?[,] grid)
       DominoOrientation.Right => [(2, 0), (1, 1), (0, 1), (-1, 0), (0, -1), (1, -1)],
       DominoOrientation.Down => [(1, 0), (1, 1), (0, 2), (-1, 1), (-1, 0), (0, -1)],
       DominoOrientation.Left => [(1, 0), (0, 1), (-1, 1), (-2, 0), (-1, -1), (0, -1)],
-      DominoOrientation.Up => [(1, 0), (0, 1), (0, -1), (-1, -1), (0, -2), (1, -1)],
+      DominoOrientation.Up => [(1, 0), (0, 1), (-1, 0), (-1, -1), (0, -2), (1, -1)],
       _ => throw new UnreachableException("Unknown DominoOrientation")
     };
 
