@@ -103,23 +103,7 @@ class Board(Cell?[,] grid)
 
   public List<Cell> FreeCells => Cells.Where(c => !c.Occupied).ToList();
 
-
-  /**
-  * TODO: Print like this
-  * ┌───────┬───┐
-  * │ 1   2 │ 3 │
-  * ├───────┤   │
-  * │ 5   0 │ 6 │
-  * └───────┴───┘
-  * Create $W+1 x 2H + 1 grid up front, fill with spaces
-  * For each cell, map coords to (4X + 2, 2Y + 1), replace with value
-  * Spaces pad left and right, not top / bottom.
-  * Draw line only if adjacent cell is part of same domino.
-  * Corners are the hard part. Idea: leave corners empty, then do second pass
-  * and fill in depending on neighboring sides
-  */
-  
-  public void Print()
+  public void DebugPrint()
   {
     for (int y = 0; y < Height; y++)
     {

@@ -28,7 +28,13 @@ class FileParser(string path)
       output.Add(line);
     }
 
-    return output;
+    // remove empty padding at beginning and end
+    return output
+        .SkipWhile(string.IsNullOrWhiteSpace)
+        .Reverse()
+        .SkipWhile(string.IsNullOrWhiteSpace)
+        .Reverse()
+        .ToList();
   }
 
   Dictionary<char, Constraint> ParseConstraints(List<string> strs)

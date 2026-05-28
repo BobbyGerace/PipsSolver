@@ -47,12 +47,16 @@ E: !=
 
 ## Output
 
-If the puzzle is solvable, this prints a grid of numbers representing the placed dominos on the board. Horizontal dominos are underlined to help distinguish how the dominos are placed (not shown here cuz markdown).
+If the puzzle is solvable, prints a domino layout representing the solution.
 
 Example:
 
 ```
-13 03
- 244  56
-   6
+┌───────┐   ┌───────┐
+│ 1   3 │   │ 0   3 │
+└───┬───┴───┼───┬───┘   ┌───────┐
+    │ 2   4 │ 4 │       │ 5   6 │
+    └───────┤   │       └───────┘
+            │ 6 │
+            └───┘
 ```

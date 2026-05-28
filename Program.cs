@@ -16,9 +16,7 @@ class Program
     if (solved)
     {
       Console.WriteLine($"Solved in {watch.ElapsedMilliseconds} ms");
-      Console.WriteLine();
-      Console.WriteLine("Underlined numbers represent horizontal dominos");
-      board.Print();
+      new FancyPrinter(board).Print();
     }
     else
     {

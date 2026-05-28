@@ -28,7 +28,7 @@ class Solver(Board board, List<Domino> dominos)
         {
           if (Debug)
           {
-            board.Print();
+            board.DebugPrint();
             Console.WriteLine("---");
           }
 
