@@ -124,7 +124,7 @@ class Board(Cell?[,] grid)
 
   void WriteCell(Cell cell)
   {
-    if (!(cell.Constraint?.Satisfiable() ?? true)) Console.ForegroundColor = ConsoleColor.Red;
+    if (cell.Constraint?.Satisfiable() is false) Console.ForegroundColor = ConsoleColor.Red;
 
     string text = cell.Value?.ToString() ?? "*";
 
