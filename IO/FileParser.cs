@@ -5,7 +5,7 @@ namespace PipsSolver.IO;
 class FileParser(string path)
 {
   
-  public (Board, List<Constraint>, List<Domino>) Parse()
+  public (Board, List<Domino>) Parse()
   {
     using StreamReader reader = new StreamReader(path);
 
@@ -17,7 +17,7 @@ class FileParser(string path)
     var grid = ParseGrid(cellLines, constraints);
     var dominos = ParseDominos(dominoLines);
 
-    return (grid, constraints.Values.ToList(), dominos);
+    return (grid, dominos);
   }
 
   List<string> ReadSection(StreamReader reader)

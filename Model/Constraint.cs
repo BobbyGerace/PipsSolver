@@ -1,5 +1,3 @@
-using System.Diagnostics;
-
 namespace PipsSolver.Model;
 
 abstract class Constraint
@@ -7,23 +5,10 @@ abstract class Constraint
   public List<Cell> Cells { get; } = [];
 
   protected List<int> Values() => Cells.Select(cell => cell.Value).OfType<int>().ToList();
-  protected bool Filled() => Cells.All(cell => cell.Value is { });
+  protected bool Filled() => Cells.All(cell => cell.Value is not null);
 
   public abstract bool Satisfiable();
 
-  public static Constraint? FromJsonType(string type, int? target)
-  {
-    return (type, target) switch
-    {
-      ("equals", _) => new AllEqualConstraint(),
-      ("unequal", _) => new NoneEqualConstraint(),
-      ("sum", int val) => new EqualNumConstraint(val),
-      ("less", int val) => new LessThanNumConstraint(val),
-      ("greater", int val) => new GreaterThanNumConstraint(val),
-      ("empty", _) => null,
-      _ => throw new UnreachableException("Unknown json region type"),
-    };
-  }
 }
 
 class AllEqualConstraint : Constraint

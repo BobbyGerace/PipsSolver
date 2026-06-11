@@ -8,7 +8,7 @@ namespace PipsSolver;
 
 class Program
 {
-  public static void Main(string[] args)
+  public static async Task Main(string[] args)
   {
     RootCommand rootCommand = new("Solver for the NYT Pips game");
 
@@ -27,7 +27,7 @@ class Program
     {
       var file = parseResult.GetValue(fileArgument);
 
-      if (file is null)
+      if (file is null || !file.Exists)
       {
         Console.WriteLine("File not found.");
         return;
@@ -37,7 +37,7 @@ class Program
     });
     rootCommand.Subcommands.Add(solveFileCommand);
 
-    var difficultyArgument = new Argument<string>("difficulty");
+    var difficultyArgument = new Argument<Difficulty>("difficulty");
     var dateOption = new Option<string>("--date");
 
     Command solveCommand = new("solve", "Fetches game data from NYT api and solves");
@@ -49,13 +49,12 @@ class Program
       var difficulty = parseResult.GetValue(difficultyArgument);
 
       if (!Regex.IsMatch(date, @"\d{4}-\d{2}-\d{2}")) throw new Exception("Invalid date");;
-      if (difficulty is not ("easy" or "medium" or "hard")) throw new Exception("Invalid difficulty");
 
       await SolveFromApi(difficulty, date);
     });
     rootCommand.Subcommands.Add(solveCommand);
 
-    rootCommand.Parse(args).Invoke();
+    await rootCommand.Parse(args).InvokeAsync();
   }
 
   public static void SolveFile(string filePath)
@@ -109,32 +108,32 @@ class Program
     Console.WriteLine($"Max: {all.Max()}");
   }
 
-  private static async Task SolveFromApi(string difficulty, string date)
+  private static async Task SolveFromApi(Difficulty difficulty, string date)
   {
-      var (board, constraints, dominos) = await NytApi.GetBoardFromDate(difficulty, date);
+    var (board, dominos) = await NytApi.GetBoardFromDate(difficulty, date);
 
-      var watch = Stopwatch.StartNew();
-      var solved = new Solver(board, dominos).Solve();
-      watch.Stop();
+    var watch = Stopwatch.StartNew();
+    var solved = new Solver(board, dominos).Solve();
+    watch.Stop();
 
-      if (!solved)
-      {
-        Console.WriteLine("Game is not solvable");
-        return;
-      }
+    if (!solved)
+    {
+      Console.WriteLine("Game is not solvable");
+      return;
+    }
 
-      Console.WriteLine($"Solved in {watch.Elapsed.TotalMilliseconds} ms");
-      new FancyPrinter(board).Print();
+    Console.WriteLine($"Solved in {watch.Elapsed.TotalMilliseconds} ms");
+    new FancyPrinter(board).Print();
   }
 
   private static (Board board, double ms)? ParseAndSolve(string filePath)
   {
-      var (board, constraints, dominos) = new FileParser(filePath).Parse();
+    var (board, dominos) = new FileParser(filePath).Parse();
 
-      var watch = Stopwatch.StartNew();
-      var solved = new Solver(board, dominos).Solve();
-      watch.Stop();
+    var watch = Stopwatch.StartNew();
+    var solved = new Solver(board, dominos).Solve();
+    watch.Stop();
 
-      return (board, watch.Elapsed.TotalMilliseconds);
+    return (board, watch.Elapsed.TotalMilliseconds);
   }
 }

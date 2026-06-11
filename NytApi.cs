@@ -5,12 +5,12 @@ namespace PipsSolver;
 
 static class NytApi
 {
-  private static HttpClient client = new()
+  private static readonly HttpClient client = new()
   {
     BaseAddress = new Uri("https://www.nytimes.com"),
   };
 
-  public static async Task<(Board, List<Constraint>, List<Domino>)> GetBoardFromDate(string difficulty, string date)
+  public static async Task<(Board, List<Domino>)> GetBoardFromDate(Difficulty difficulty, string date)
   {
     using HttpResponseMessage response = await client.GetAsync($"/svc/pips/v1/{date}.json");
 
@@ -24,10 +24,10 @@ static class NytApi
 
     var game = difficulty switch
     {
-      "easy" => body.Easy,
-      "medium" => body.Medium,
-      "hard" => body.Hard,
-      _ => throw new NotImplementedException("Invalid difficulty"),
+      Difficulty.Easy => body.Easy,
+      Difficulty.Medium => body.Medium,
+      Difficulty.Hard => body.Hard,
+      _ => throw new Exception("Invalid difficulty"),
     };
 
     int Height = game.Regions.SelectMany(r => r.Indices).Max(i => i[0]) + 1;
@@ -38,21 +38,35 @@ static class NytApi
 
     foreach (var region in game.Regions)
     {
-      Constraint? constraint = Constraint.FromJsonType(region.Type, region.Target);
+      Constraint? constraint = FromJsonType(region.Type, region.Target);
 
       foreach(var coords in region.Indices)
       {
-        Cell cell = new(coords[1], coords[0]);
+        var x = coords[1];
+        var y = coords[0];
+        Cell cell = new(x, y);
         board.AddCell(cell);
-        if (constraint is { }) board.AddConstraintToCell(constraint, coords[1], coords[0]);
+        if (constraint is not null) board.AddConstraintToCell(constraint, x, y);
       }
-
-      if (constraint is { }) constraints.Add(constraint);
     }
     
     var dominos = game.Dominoes.Select(dom => new Domino(dom[0], dom[1])).ToList();
 
-    return (board, constraints, dominos);
+    return (board, dominos);
+  }
+
+  private static Constraint? FromJsonType(string type, int? target)
+  {
+    return (type, target) switch
+    {
+      ("equals", _) => new AllEqualConstraint(),
+      ("unequal", _) => new NoneEqualConstraint(),
+      ("sum", int val) => new EqualNumConstraint(val),
+      ("less", int val) => new LessThanNumConstraint(val),
+      ("greater", int val) => new GreaterThanNumConstraint(val),
+      ("empty", _) => null,
+      _ => throw new Exception("Unknown json region type"),
+    };
   }
 }
 
@@ -61,3 +75,10 @@ record JsonResponseDto(string PrintDate, GameDataDto Easy, GameDataDto Medium, G
 record GameDataDto(List<List<int>> Dominoes, List<RegionDto> Regions);
 
 record RegionDto(List<List<int>> Indices, string Type, int? Target);
+
+enum Difficulty
+{
+  Easy,
+  Medium,
+  Hard
+}
