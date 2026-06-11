@@ -104,7 +104,20 @@ class Program
 
   private static async Task SolveFromApi()
   {
-    await NytApi.GetBoardFromDate();
+      var (board, constraints, dominos) = await NytApi.GetBoardFromDate();
+
+      var watch = Stopwatch.StartNew();
+      var solved = new Solver(board, dominos).Solve();
+      watch.Stop();
+
+      if (!solved)
+      {
+        Console.WriteLine("Game is not solvable");
+        return;
+      }
+
+      Console.WriteLine($"Solved in {watch.Elapsed.TotalMilliseconds} ms");
+      new FancyPrinter(board).Print();
   }
 
   private static (Board board, double ms)? ParseAndSolve(string filePath)
