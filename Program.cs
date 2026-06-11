@@ -2,17 +2,15 @@
 using System.CommandLine;
 using PipsSolver.IO;
 using PipsSolver.Model;
+using System.Text.RegularExpressions;
 
 namespace PipsSolver;
 
 class Program
 {
-
-  
   public static void Main(string[] args)
   {
     RootCommand rootCommand = new("Solver for the NYT Pips game");
-
 
     Command perfCommand = new("perf", "Runs the examples in the examples folder and measures performance");
     perfCommand.SetAction(_ =>
@@ -39,16 +37,25 @@ class Program
     });
     rootCommand.Subcommands.Add(solveFileCommand);
 
+    var difficultyArgument = new Argument<string>("difficulty");
+    var dateOption = new Option<string>("--date");
 
     Command solveCommand = new("solve", "Fetches game data from NYT api and solves");
-    solveCommand.SetAction(async _ =>
+    solveCommand.Arguments.Add(difficultyArgument);
+    solveCommand.Options.Add(dateOption);
+    solveCommand.SetAction(async parseResult =>
     {
-      await SolveFromApi();
+      var date = parseResult.GetValue(dateOption) ?? DateTime.Now.ToString("yyyy-MM-dd");
+      var difficulty = parseResult.GetValue(difficultyArgument);
+
+      if (!Regex.IsMatch(date, @"\d{4}-\d{2}-\d{2}")) throw new Exception("Invalid date");;
+      if (difficulty is not ("easy" or "medium" or "hard")) throw new Exception("Invalid difficulty");
+
+      await SolveFromApi(difficulty, date);
     });
     rootCommand.Subcommands.Add(solveCommand);
 
     rootCommand.Parse(args).Invoke();
-
   }
 
   public static void SolveFile(string filePath)
@@ -102,9 +109,9 @@ class Program
     Console.WriteLine($"Max: {all.Max()}");
   }
 
-  private static async Task SolveFromApi()
+  private static async Task SolveFromApi(string difficulty, string date)
   {
-      var (board, constraints, dominos) = await NytApi.GetBoardFromDate();
+      var (board, constraints, dominos) = await NytApi.GetBoardFromDate(difficulty, date);
 
       var watch = Stopwatch.StartNew();
       var solved = new Solver(board, dominos).Solve();
@@ -130,8 +137,4 @@ class Program
 
       return (board, watch.Elapsed.TotalMilliseconds);
   }
-
 }
-
-
-

@@ -6,11 +6,25 @@ I wrote this by hand as a personal project to practice C#.
 
 # Usage
 
-`dotnet run path/to/gamefile.txt`
+To solve a NYT Pips game using their API:
+
+```sh
+# Pass difficulty to solve today's game
+dotnet run solve medium
+
+# Optionally specify a date for past games
+dotnet run solve --date=2026-06-10 hard
+```
+
+To solve a game from a file:
+
+```sh
+dotnet run path/to/gamefile.txt
+```
 
 ## File syntax
 
-The input is a text file which represents a Pips game board.
+In addition to solving games from the API, you can read games from a text file which represents a Pips game board.
 
 The text file has three sections, separated by a `---` line.
 
@@ -44,6 +58,8 @@ E: !=
 3 1
 5 6
 ```
+
+See `/examples` folder for more.
 
 ## Output
 

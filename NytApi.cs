@@ -10,9 +10,9 @@ static class NytApi
     BaseAddress = new Uri("https://www.nytimes.com"),
   };
 
-  public static async Task<(Board, List<Constraint>, List<Domino>)> GetBoardFromDate()
+  public static async Task<(Board, List<Constraint>, List<Domino>)> GetBoardFromDate(string difficulty, string date)
   {
-    using HttpResponseMessage response = await client.GetAsync("/svc/pips/v1/2026-06-11.json");
+    using HttpResponseMessage response = await client.GetAsync($"/svc/pips/v1/{date}.json");
 
     response.EnsureSuccessStatusCode();
 
@@ -22,7 +22,13 @@ static class NytApi
     
     Console.WriteLine($"Received data for {body.PrintDate}");
 
-    var game = body.Easy;
+    var game = difficulty switch
+    {
+      "easy" => body.Easy,
+      "medium" => body.Medium,
+      "hard" => body.Hard,
+      _ => throw new NotImplementedException("Invalid difficulty"),
+    };
 
     int Height = game.Regions.SelectMany(r => r.Indices).Max(i => i[0]) + 1;
     int Width = game.Regions.SelectMany(r => r.Indices).Max(i => i[1]) + 1;
