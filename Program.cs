@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.CommandLine;
 using PipsSolver.IO;
 using PipsSolver.Model;
 
@@ -6,10 +7,48 @@ namespace PipsSolver;
 
 class Program
 {
+
+  
   public static void Main(string[] args)
   {
-    if (args[0] == "--perf") Perf();
-    else SolveFile(args[0]);
+    RootCommand rootCommand = new("Solver for the NYT Pips game");
+
+
+    Command perfCommand = new("perf", "Runs the examples in the examples folder and measures performance");
+    perfCommand.SetAction(_ =>
+    {
+      Perf();
+    });
+    rootCommand.Subcommands.Add(perfCommand);
+
+    var fileArgument = new Argument<FileInfo>("file");
+
+    Command solveFileCommand = new("solveFile", "Parses a game from a text file and prints the solution");
+    solveFileCommand.Arguments.Add(fileArgument);
+    solveFileCommand.SetAction(parseResult =>
+    {
+      var file = parseResult.GetValue(fileArgument);
+
+      if (file is null)
+      {
+        Console.WriteLine("File not found.");
+        return;
+      }
+
+      SolveFile(file.FullName);
+    });
+    rootCommand.Subcommands.Add(solveFileCommand);
+
+
+    Command solveCommand = new("solve", "Fetches game data from NYT api and solves");
+    solveCommand.SetAction(async _ =>
+    {
+      await SolveFromApi();
+    });
+    rootCommand.Subcommands.Add(solveCommand);
+
+    rootCommand.Parse(args).Invoke();
+
   }
 
   public static void SolveFile(string filePath)
@@ -63,6 +102,11 @@ class Program
     Console.WriteLine($"Max: {all.Max()}");
   }
 
+  private static async Task SolveFromApi()
+  {
+    await NytApi.GetBoardFromDate();
+  }
+
   private static (Board board, double ms)? ParseAndSolve(string filePath)
   {
       var (board, constraints, dominos) = new FileParser(filePath).Parse();
@@ -73,5 +117,8 @@ class Program
 
       return (board, watch.Elapsed.TotalMilliseconds);
   }
+
 }
+
+
 
